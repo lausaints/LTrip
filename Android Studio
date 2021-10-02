@@ -1,0 +1,11 @@
+package com.mouredev.helloandroidstudio
+
+import ...
+
+class MainActivity : AppCompatActivity() {
+
+  override fun onCreate(savedInstanceState: Bundle?) { savedInstanceState: null
+      super.onCreate(savedInstanceState) savedInstanceState: null
+      setContentView(R.layout.activity_main)
+  }
+}
