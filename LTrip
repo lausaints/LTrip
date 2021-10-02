@@ -1,0 +1,87 @@
+//BOTON QUE LLAMA A EL EVENTO
+
+imageViewAdelante.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    estadoMovimientoCallable="w";
+                    FutureTask task = new FutureTask(new ControlCallable());
+                    ExecutorService es = Executors.newSingleThreadExecutor ();
+                     es.submit(task);
+                    try {
+                        Boolean esta= (Boolean) task.get();
+                        if(!esta){
+                            Toast.makeText(getApplicationContext(),"error",Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    es.shutdown ();
+
+                }else if(event.getAction() == MotionEvent.ACTION_UP){
+
+                    estadoMovimientoCallable="o";
+                    FutureTask task = new FutureTask(new ControlCallable());
+                    ExecutorService es = Executors.newSingleThreadExecutor ();
+                    es.submit(task);
+                    try {
+                        Boolean esta= (Boolean) task.get();
+                        if(!esta){
+                            Toast.makeText(getApplicationContext(),"error",Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    es.shutdown ();
+                }
+                return false;
+            }
+        });
+
+//EVENTO LLAMADO
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.concurrent.Callable;
+
+import static com.example.dumein.MainActivity.IPCONEXION;
+import static com.example.dumein.recusos.recursos.PUERTOCONTROL;
+
+public class ControlCallable implements Callable<Boolean> {
+    private Socket socket;
+    public static String estadoMovimientoCallable ="";
+    public static Boolean estadoComunicacionControlCallable=null;
+
+    @Override
+    public Boolean call() throws Exception {
+        try{
+            socket = new Socket(IPCONEXION,PUERTOCONTROL);
+            if(socket.isConnected()){
+                estadoComunicacionControlCallable=true;
+                DataOutputStream flujoSalida = null;
+                flujoSalida = new DataOutputStream(socket.getOutputStream());
+                flujoSalida.writeUTF(estadoMovimientoCallable);
+                flujoSalida.close();
+
+            }else if(!socket.isConnected()){
+                estadoComunicacionControlCallable=false;
+            }
+        }catch (UnknownHostException e1){
+            estadoComunicacionControlCallable=false;
+            e1.printStackTrace();
+        }catch (IOException e2){
+            estadoComunicacionControlCallable=false;
+            e2.printStackTrace();
+        }
+        return estadoComunicacionControlCallable;
+    }
+}
+
+
+
